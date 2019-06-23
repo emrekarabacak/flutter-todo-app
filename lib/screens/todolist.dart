@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app/model/todo.dart';
+import 'package:todo_app/screens/tododetail.dart';
 import 'package:todo_app/util/dbhelper.dart';
 
 class TodoList extends StatefulWidget {
@@ -23,14 +24,7 @@ class TodoListState extends State<TodoList> {
       body: todolistItems(),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
-            DbHelper helper = DbHelper();
-            helper.initializeDB().then((result) {
-              Todo todo = Todo(
-                  "Buy oranges", 1, DateTime.now().toString(), "Orangeeedss");
-              helper.inserTodo(todo).then((result) {
-                debugPrint("item added");
-              });
-            });
+            navigateToDetail(Todo('', 3, '', ''));
           },
           tooltip: "Add new todo",
           child: Icon(Icons.add)),
@@ -46,13 +40,13 @@ class TodoListState extends State<TodoList> {
           elevation: 2.0,
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: Colors.red,
+              backgroundColor: getColor(todos[position].priority),
               child: Text(this.todos[position].priority.toString()),
             ),
             title: Text(this.todos[position].title),
             subtitle: Text(this.todos[position].date),
             onTap: () {
-              debugPrint("Tapped on " + this.todos[position].id.toString());
+              navigateToDetail(this.todos[position]);
             },
           ),
         );
@@ -79,5 +73,25 @@ class TodoListState extends State<TodoList> {
         debugPrint("Items " + count.toString());
       });
     });
+  }
+
+  Color getColor(int priority) {
+    switch (priority) {
+      case 1:
+        return Colors.red;
+      case 2:
+        return Colors.orange;
+      case 3:
+        return Colors.green;
+    }
+  }
+
+  void navigateToDetail(Todo todo) async {
+    bool result = await Navigator.push(
+        context, MaterialPageRoute(builder: (context) => TodoDetail(todo)));
+
+    if (result == true) {
+      getData();
+    }
   }
 }
